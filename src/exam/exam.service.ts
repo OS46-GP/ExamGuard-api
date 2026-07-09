@@ -1,29 +1,45 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Exam, ExamDocument } from './schemas/exam.schema';
 
 @Injectable()
 export class ExamService {
-  // TODO
-  async create(_data: any): Promise<any> {
-    return { _id: 'mock-exam-id', ..._data };
+  constructor(
+    @InjectModel(Exam.name) private readonly examModel: Model<ExamDocument>,
+  ) {}
+
+  async create(data: any): Promise<ExamDocument> {
+    const exam = new this.examModel(data);
+    return exam.save();
   }
 
-  // TODO
-  async findAll(): Promise<any[]> {
-    return [];
+  async findAll(): Promise<ExamDocument[]> {
+    return this.examModel.find().exec();
   }
 
-  // TODO
-  async findById(_id: string): Promise<any> {
-    return null;
+  async findById(id: string): Promise<ExamDocument> {
+    const exam = await this.examModel.findById(id).exec();
+    if (!exam) {
+      throw new NotFoundException(`Exam with id ${id} not found`);
+    }
+    return exam;
   }
 
-  // TODO
-  async update(_id: string, _data: any): Promise<any> {
-    return null;
+  async update(id: string, data: any): Promise<ExamDocument> {
+    const exam = await this.examModel
+      .findByIdAndUpdate(id, data, { new: true })
+      .exec();
+    if (!exam) {
+      throw new NotFoundException(`Exam with id ${id} not found`);
+    }
+    return exam;
   }
 
-  // TODO
-  async delete(_id: string): Promise<void> {
-    // noop
+  async delete(id: string): Promise<void> {
+    const result = await this.examModel.findByIdAndDelete(id).exec();
+    if (!result) {
+      throw new NotFoundException(`Exam with id ${id} not found`);
+    }
   }
 }
