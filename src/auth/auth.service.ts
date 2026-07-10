@@ -1,20 +1,44 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
-  // TODO
-  async validateUser(email: string, _password: string): Promise<any> {
-    return { id: 'mock-id', email, role: 'student' };
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
+  ) {}
+
+  async validateUser(email: string, password: string): Promise<any> {
+    const user = await this.usersService.findByEmail(email);
+    if (user) {
+      const isMatch = await bcrypt.compare(password, user.passwordHash);
+      if (isMatch) {
+        return { id: user._id.toString(), email: user.email, role: user.role };
+      }
+    }
+    return null;
   }
 
-  // TODO
-  async login(_user: any): Promise<any> {
-    return { access_token: 'mock-jwt-token' };
+  async login(user: any): Promise<any> {
+    const payload = {
+      sub: user.id || user._id?.toString(),
+      email: user.email,
+      role: user.role,
+    };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
   }
 
-  // TODO
-  async register(_dto: RegisterDto): Promise<any> {
-    return { access_token: 'mock-jwt-token' };
+  async register(dto: RegisterDto): Promise<any> {
+    const existingUser = await this.usersService.findByEmail(dto.email);
+    if (existingUser) {
+      throw new ConflictException('Email already registered');
+    }
+    const createdUser = await this.usersService.create(dto);
+    return this.login(createdUser);
   }
 }
