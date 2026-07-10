@@ -1,14 +1,29 @@
-import { Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiTags('materials')
+@ApiBearerAuth()
 @Controller('materials')
 @UseGuards(AuthGuard('jwt'))
 export class RagController {
-  // TODO
-
   @Post('upload')
+  @HttpCode(HttpStatus.NOT_IMPLEMENTED)
+  @ApiOperation({
+    summary: 'Upload material',
+    description:
+      'Uploads a document for AI-based exam generation. **Not yet implemented.**',
+  })
   async upload(): Promise<any> {
-    // TODO
-    return { message: 'Upload endpoint — not implemented yet' };
+    return {
+      statusCode: HttpStatus.NOT_IMPLEMENTED,
+      message: 'Upload endpoint — not yet implemented',
+    };
   }
 }
