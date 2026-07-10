@@ -1,4 +1,5 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -7,13 +8,12 @@ import { RegisterDto } from './dto/register.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  // TODO
+  @UseGuards(AuthGuard('local'))
   @Post('login')
-  async login(@Body() _loginDto: LoginDto) {
-    return this.authService.login({ id: 'mock', email: _loginDto.email, role: 'student' });
+  async login(@Req() req: any, @Body() _loginDto: LoginDto) {
+    return this.authService.login(req.user);
   }
 
-  // TODO
   @Post('register')
   async register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
