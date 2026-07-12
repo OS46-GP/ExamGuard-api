@@ -17,16 +17,6 @@ NestJS API for AI-powered exam proctoring and generation.
 
 ---
 
-## Team Assignments (build-into)
-
-| Person | Scope |
-|--------|-------|
-| **BE1** | `RagModule` (ChromaDB ingestion, embeddings, chunking) + `ExamGenerationService` (RAG-based question generation in `ExamModule`) |
-| **BE2** | `ProctoringModule` (ML inference on gaze/tab events, integrity score calculation, real-time alerts) |
-| **BE3** | Everything else — Auth fine-tuning, Exam/Question CRUD, integration wiring, validation, admin endpoints |
-
----
-
 ## Getting Started
 
 ### Prerequisites
